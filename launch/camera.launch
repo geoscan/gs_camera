@@ -2,7 +2,9 @@
     <node pkg="cv_camera" type="cv_camera_node" name="pioneer_max_camera">
         <param name="device_id" value="0"/>
     </node>
-    <node pkg="gs_camera" type="web_viewer_node.py" name="web_viewer_node">
-        <param name="camera_topic" value="pioneer_max_camera/image_raw"/>
+    <node pkg="gs_camera" type="web_viewer_node.py" name="camera_web_viewer_node">
+        <param name="image_topic" value="pioneer_max_camera/image_raw"/>
+        <param name="interface" value="wlan0"/>
+        <param name="port" value="8088"/>
     </node>
 </launch>

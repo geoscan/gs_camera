@@ -11,9 +11,11 @@ from flask import Response, Flask, render_template
 from threading import Thread
 from time import sleep
 
-bridge=CvBridge()
-img=None
+bridge = CvBridge()
+img = None
 app = Flask(__name__)
+interface = "wlan0"
+port = 8088
 
 def callback(data):
     global bridge
@@ -29,18 +31,31 @@ def generate():
     global img
     while True:
         sleep(0.01)
-        yield(b'--frame\r\n'+b'Content-Type: image/jpeg\r\n\r\n' + img + b'\r\n')
+        try:
+            yield(b'--frame\r\n'+b'Content-Type: image/jpeg\r\n\r\n' + img + b'\r\n')
+        except TypeError:
+            pass
 
 @app.route("/")
 def video():
 	return Response(generate(),
 		mimetype = "multipart/x-mixed-replace; boundary=frame")
 
-def target():
+def init():
+    global interface
+    global port
     rospy.init_node("web_viewer_node", disable_signals=True)
-    cam=rospy.get_param(rospy.search_param("camera_topic"))
-    rospy.wait_for_message(cam,Image)
-    Subscriber(cam,Image,callback)
+    img_topic = rospy.get_param(rospy.search_param("image_topic"))
+    try:
+        interface = rospy.get_param(rospy.search_param("interface"))
+    except:
+        rospy.logwarn("Parameter \'interface'\ not specified. The interface is set to {}".format(interface))
 
-Thread(target=target).start()
-app.run(host=os.popen('ip addr show wlan0').read().split("inet ")[1].split("/")[0], port=8088, debug=True, threaded=True, use_reloader=False)
+    try:
+        port = int(rospy.get_param(rospy.search_param("port")))
+    except:
+        rospy.logwarn("Parameter \'port\' not specified. The port is set to {}".format(port))
+    Subscriber(img_topic,Image,callback)
+
+Thread(target=init).run()
+app.run(host = os.popen("ip addr show {}".format(interface)).read().split("inet ")[1].split("/")[0], port=port, debug=True, threaded=True, use_reloader=False)
