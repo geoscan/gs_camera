@@ -82,8 +82,7 @@ class RunCam():
         self.__read_data()
     
     def __set_settings(self,settings_id, body):
-        package = (0xCC, 0x13,settings_id)
-        package += body
+        package = (0xCC, 0x13, settings_id, body)
         code = Crc8DvbS2.calc(package)
         package += (code,)
         self._serial.write(package)
