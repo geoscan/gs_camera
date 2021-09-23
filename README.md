@@ -51,6 +51,9 @@
 * топик указанный в параметре image_topic
 * geoscan/navigation/global/position
 
+#### Сервисы:
+* geoscan/navigation/get_system
+
 ## Описание классов:
 
 ### 1. RunCam
