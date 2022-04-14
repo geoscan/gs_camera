@@ -1,1 +1,1 @@
-from .core import RunCam
+from .gs_camera import RunCam
